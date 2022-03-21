@@ -114,10 +114,10 @@
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1138 milliseconds  @inode_evictions: 499
 
 
-# Scalling results (x86_64):
+# Load test results (x86_64):
 #
 # __T E S T - 3 - populate + test. test renameat2/openat + unlinking syscalls w/ empty files (3x)
-# ubuntu jammy jellyfish (kvm)  kernel  5.15.0.23 (5.15.27)
+# ubuntu jammy jellyfish -- kernel  5.15.0.23 (5.15.27) - (kvm) 
 # 1000 files gives aprox. (103204/1999) 51.6 x more inode evictions and aprox. (139000/7688) 18.1 x more time
 # 250  files gives aprox.   (31375/499) 62.9 x more inode evictions and aprox.  (17300/1138) 15.2 x more time
 # 100  files gives aprox.    (5050/199) 25.4 x more inode evictions and aprox.    (1600/430)  3.7 x more time
