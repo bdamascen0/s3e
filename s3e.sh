@@ -1,7 +1,7 @@
 #!/bin/bash
 # s3e.sh
 # Simple Syscall Signature Emulator
-# version 4.6
+# version 4.7
 # Copyright (c) 2022 Bruno Damasceno <bdamasceno@hotmail.com.br>
 
 
@@ -94,9 +94,16 @@
 
 
 # Main results (x86_64)
+# The regression was reproduced on several different 5.15 kernels across several different distros.
+# The regression was reproducible on all 5.15 kernels that I have tried.
+# The regression could not be reproduced on kernels versions different than the 5.15.
 #
-# __T E S T - 3 - populate + test. test renameat2/openat + unlinking syscalls w/ empty files (3x)
-# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 - (kvm)
+# __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
+# opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 668 milliseconds   @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 693 milliseconds   @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 661 milliseconds   @inode_evictions: 252
+# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 --- (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 811 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 912 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 993 milliseconds   @inode_evictions: 251
@@ -108,15 +115,28 @@
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 12500 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 12327 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1482 milliseconds  @inode_evictions: 499
-# ubuntu jammy jellyfish -- kernel  5.15.0.23 (5.15.27) - (kvm) 
+# debian bookworm --------- kernel 5.15.0-3  (5.15.15) - (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 12343 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 14028 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1092 milliseconds  @inode_evictions: 499
+# Zenwalk 15.0 Skywalker ---kernel 5.15.19 --------------(kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 14374 milliseconds @inode_evictions: -
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 14163 milliseconds @inode_evictions: -
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 2173 milliseconds  @inode_evictions: -
+# ubuntu jammy jellyfish -- kernel 5.15.0.23 (5.15.27) - (kvm) 
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 17521 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 17114 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1138 milliseconds  @inode_evictions: 499
 
 
 # Load test results (x86_64):
+# These results are from btrfs compression property enabled files vs btrfs uncompressed files.
+# The btrfs uncompressed files are the reference.
+# The btrfs compressed files suffer from:
+# - higher inode evictions produced by the kernel;
+# - slower performance due the btrfs directory logging on the 5.15 kernel not being particulary efficient in the presence of high inode eviction.
 #
-# __T E S T - 3 - populate + test. test renameat2/openat + unlinking syscalls w/ empty files (3x)
+# __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
 # ubuntu jammy jellyfish -- kernel  5.15.0.23 (5.15.27) - (kvm) 
 # 1000 files gives aprox. (103204/1999) 51.6 x more inode evictions and aprox. (139000/7688) 18.1 x more time
 # 250  files gives aprox.   (31375/499) 62.9 x more inode evictions and aprox.  (17300/1138) 15.2 x more time
@@ -128,7 +148,7 @@
 # CPU usage results:
 # The regression causes significant CPU usage by the kernel.
 #
-# __T E S T - 3 - populate + test. test renameat2/openat + unlinking syscalls w/ empty files (3x)
+# __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
 # ubuntu jammy jellyfish -- kernel  5.15.0.23 (5.15.27) - (kvm) 
 # ...updating 1000 files on /mnt/inode-ev/zstd:           Job took 137841 milliseconds
 # real	2m17,881s
@@ -160,6 +180,11 @@
 
 
 # Changelog:
+# v4.7 20220324
+#   fix for distros missing /usr/sbin in %PATH (again).
+#   added more results.
+#   added brief description to some test results.
+#   cosmetic changes in the test descriptions.
 # v4.6 20220320
 #   first public version.
 #   revised introduction text.
@@ -233,7 +258,7 @@
 
 #add /usr/sbin to $PATH. needed for btrfs compsize modprobe and blockdev on debian
 if [[ `echo \`env | grep PATH | grep sbin | wc -l\`` = 0 ]]; then
-    env PATH=$PATH:/usr/sbin > /dev/null
+    PATH=$PATH:/usr/sbin
 fi
 
 cmd1=disable
@@ -278,9 +303,9 @@ DIR_3="$MNT/$dir3"
 dtest0="populate/test.          test renameat2/openat syscalls w/ empty files (zstd) - ref implementation based on fdmanana's script"
 dtest1="unlink/populate + test. test renameat2/openat syscalls w/ empty files (3x = zstd, lzo, none)"
 dtest2="unlink/populate + test. test renameat2/openat + newfstatat + write syscalls (non empty files, 3x)"
-dtest3="populate + test.        test renameat2/openat + unlinking syscalls w/ empty files (3x)"
-dtest4="populate + test.        test renameat2/openat + unlinking + newfstatat + write syscalls (non empty files, 3x)"
-dtest5="populate + test.        test rename   /openat + unlinking + newfstatat + write syscalls (non empty files, 3x)"
+dtest3="populate + test.        test renameat2/openat + unlink syscalls w/ empty files (3x)"
+dtest4="populate + test.        test renameat2/openat + unlink + newfstatat + write syscalls (non empty files, 3x)"
+dtest5="populate + test.        test rename   /openat + unlink + newfstatat + write syscalls (non empty files, 3x)"
 
 
 probe() {
