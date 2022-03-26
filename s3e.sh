@@ -99,19 +99,31 @@
 # The regression could not be reproduced on kernels versions different than the 5.15.
 #
 # __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
-# opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54
+# opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54----------
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 668 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 693 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 661 milliseconds   @inode_evictions: 252
-# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 --- (kvm)
+# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 811 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 912 milliseconds   @inode_evictions: 251
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 993 milliseconds   @inode_evictions: 251
-# opensuse tumbleweed ----- kernel 5.16.14
+# opensuse tumbleweed ----- kernel 5.14.14 --------------- (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 888 milliseconds   @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1063 milliseconds  @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 778 milliseconds   @inode_evictions: 251
+# opensuse tumbleweed ----- kernel 5.16.14----------------------
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 1398 milliseconds  @inode_evictions: 250
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1323 milliseconds  @inode_evictions: 250
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1365 milliseconds  @inode_evictions: 250
-# opensuse tumbleweed ----- kernel 5.15.12
+# opensuse tumbleweed ----- kernel 5.15.0-rc1-1.g8787773 - (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 13875 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 15351 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1231 milliseconds  @inode_evictions: 499
+# opensuse tumbleweed ----- kernel 5.15.12 --- vanilla --- (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 13327 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 13361 milliseconds @inode_evictions: 31375
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1204 milliseconds  @inode_evictions: 499
+# opensuse tumbleweed ----- kernel 5.15.12----------------------
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 12500 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 12327 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1482 milliseconds  @inode_evictions: 499
@@ -179,23 +191,40 @@
 # (*) kernels compiled with ramdisk option (like zenwalk) will need additional customization.
 
 
-# Changelog:
+# Changelog - document:
+# 20220326)
+#   added test results for:
+#   -opensuse tumbleweed: k5.14.14 / k5.15.0-rc1 / k5.15.12 vanilla.
+# 20220324)
+#   added brief description to some test results.
+#   added test results for:
+#   -debian bookworm: k5.15.15.
+#   -zenwalk skywalker: k5.15.19.
+# 20220320)
+#   revised introduction text.
+#   added system resource usage results.
+# 20220319)
+#   added test results for:
+#   -opensuse leap 15.3: k5.3.
+#   -opensuse leap 15.4: k5.14.
+#   -opensuse tumbleweed: k5.15.12 / k5.16.14.
+#   -ubuntu jammy jellyfish: k5.15.27.
+# 20220317)
+#   added introduction text.
+
+
+# Changelog - script:
 # v4.7 20220324
 #   fix for distros missing /usr/sbin in %PATH (again).
-#   added more results.
-#   added brief description to some test results.
 #   cosmetic changes in the test descriptions.
 # v4.6 20220320
 #   first public version.
-#   revised introduction text.
-#   added system resource usage results.
 #   code refactor:
 #   -added basic integration for the time program (system resources usage).
 #   -added time 2nd level external parameter.
 #   -changed test_pre function.
 #   -added basic file check for the time program
 # v4.5 20220319 (internal)
-#   added test results.
 #   code refactor:
 #   -added basic integration for the bpftrace program.
 #   -added bpftrace 2nd level external parameter.
@@ -220,7 +249,6 @@
 #   fix var declaration: compress3 missing, compress1 declared twice.
 #   update and cleanup of comments, usage and test descriptions.
 #   tooling: external batch test script to get strace logs for all tests.
-#   added introduction text.
 # v4.3 20220221 (internal)
 #   changed tests (file sizes).
 # v4.2 20220216 (internal)
