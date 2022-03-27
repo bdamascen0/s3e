@@ -7,7 +7,7 @@
 
 # Description:
 # This program is a simple system call signature emulator script with:
-# -integrated system call signature emulation to provide some inode-eviction analysis for the linux kernel
+# -integrated system call signature emulation to provide some inode-eviction analysis for the linux kernel.
 # -integrated ramdisk setup, formatting, mounting and reseting.
 # -integrated folder layout setup.
 # -integrated safety checks.
@@ -77,9 +77,15 @@
 
 # - Triggering the regression -
 #
-# Verify the dependencies and run this script on any 5.15 kernel.
+# The bare minimum group of factors to trigger the regression is:
+# - the 5.15 kernel series (since 5.15.0-rc1).
+# - a btrfs partition.
+# - the minimun syscall signature targeting files with btrfs compression property
+#
+# Verify the dependencies and run the s3e.sh program on any 5.15 kernel.
 # Tests 1 and 2 doesn't produce the minimum syscall signature and should be fast on all folders (uncompressed, zstd and lzo folders).
 # Tests 3, 4 and 5 does produce the minimum syscall signature and should be fast on the uncompressed folder and a lot slower on the zstd and lzo folders.
+# Test 3 is considered the most significant as it produces the minimum syscall signature and uses the widely available mv program.
 #
 # The slow results on tests 3, 4 and 5 are due:
 # a_ the kernel regression: specific system calls touching files with btrfs compression property will generate higher inode eviction on 5.15 kernels.
@@ -93,68 +99,130 @@
 # [1] https://bugzilla.opensuse.org/show_bug.cgi?id=1193549
 
 
-# Main results (x86_64)
-# The regression was reproduced on several different 5.15 kernels across several different distros.
-# The regression was reproducible on all 5.15 kernels that I have tried.
-# The regression could not be reproduced on kernels versions different than the 5.15.
+# - Main results -
 #
+# The regression was reproduced on several different 5.15 kernels versions across several different distros.
+# The regression was reproduced on all 5.15 kernels that I have tried on.
+# The regression was reproduced on the 5.15.0-rc1 kernel from the opensuse tumbleweed comunity repository.
+# The regression was reproduced on the 5.15.12 vanilla kernel from the official opensuse tumbleweed repository.
+# The regression could not be reproduced on kernels versions other than the 5.15.
+#
+# The 5.15.12 vanilla kernel test was suggested by Thorsten Leemhuis [1] to make sure downstream custom patches aren't causing the symptoms.
+# The 5.15.12 vanilla kernel test result shows the exact same pattern verified on downstream kernels and fully validates the regression.
+#
+# [1] https://lore.kernel.org/linux-fsdevel/07bb78be-1d58-7d88-288b-6516790f3b5d@leemhuis.info/
+
+
+# General test results for the 5.15 kernel series (x86_64)
 # __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
-# opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54----------
-# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 668 milliseconds   @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 693 milliseconds   @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 661 milliseconds   @inode_evictions: 252
-# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)
-# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 811 milliseconds   @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 912 milliseconds   @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 993 milliseconds   @inode_evictions: 251
-# opensuse tumbleweed ----- kernel 5.14.14 --------------- (kvm)
-# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 888 milliseconds   @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1063 milliseconds  @inode_evictions: 251
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 778 milliseconds   @inode_evictions: 251
-# opensuse tumbleweed ----- kernel 5.16.14----------------------
-# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 1398 milliseconds  @inode_evictions: 250
-# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1323 milliseconds  @inode_evictions: 250
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1365 milliseconds  @inode_evictions: 250
 # opensuse tumbleweed ----- kernel 5.15.0-rc1-1.g8787773 - (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 13875 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 15351 milliseconds @inode_evictions: 31375
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1231 milliseconds  @inode_evictions: 499
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1231 milliseconds @inode_evictions: 499
 # opensuse tumbleweed ----- kernel 5.15.12 --- vanilla --- (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 13327 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 13361 milliseconds @inode_evictions: 31375
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1204 milliseconds  @inode_evictions: 499
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1204 milliseconds @inode_evictions: 499
 # opensuse tumbleweed ----- kernel 5.15.12----------------------
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 12500 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 12327 milliseconds @inode_evictions: 31375
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1482 milliseconds  @inode_evictions: 499
-# debian bookworm --------- kernel 5.15.0-3  (5.15.15) - (kvm)
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1482 milliseconds @inode_evictions: 499
+# debian bookworm --------- kernel 5.15.0-3 - (5.15.15) -- (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 12343 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 14028 milliseconds @inode_evictions: 31375
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1092 milliseconds  @inode_evictions: 499
-# Zenwalk 15.0 Skywalker ---kernel 5.15.19 --------------(kvm)
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1092 milliseconds @inode_evictions: 499
+# Zenwalk 15.0 Skywalker ---kernel 5.15.19 --------------- (kvm)
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 14374 milliseconds @inode_evictions: -
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 14163 milliseconds @inode_evictions: -
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 2173 milliseconds  @inode_evictions: -
-# ubuntu jammy jellyfish -- kernel 5.15.0.23 (5.15.27) - (kvm) 
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  2173 milliseconds @inode_evictions: -
+# ubuntu jammy jellyfish -- kernel 5.15.0.23 - (5.15.27) - (kvm) 
 # ...updating 250 files on /mnt/inode-ev/zstd:         Job took 17521 milliseconds @inode_evictions: 31375
 # ...updating 250 files on /mnt/inode-ev/lzo:          Job took 17114 milliseconds @inode_evictions: 31375
-# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1138 milliseconds  @inode_evictions: 499
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1138 milliseconds @inode_evictions: 499
+
+
+# General test results for other kernels (x86_64)
+# __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
+# opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54----------
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took  668 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took  693 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  661 milliseconds @inode_evictions: 252
+# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took  811 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took  912 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  993 milliseconds @inode_evictions: 251
+# opensuse tumbleweed ----- kernel 5.14.14 --------------- (kvm)
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took  888 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1063 milliseconds @inode_evictions: 251
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took  778 milliseconds @inode_evictions: 251
+# opensuse tumbleweed ----- kernel 5.16.14----------------------
+# ...updating 250 files on /mnt/inode-ev/zstd:         Job took 1398 milliseconds @inode_evictions: 250
+# ...updating 250 files on /mnt/inode-ev/lzo:          Job took 1323 milliseconds @inode_evictions: 250
+# ...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1365 milliseconds @inode_evictions: 250
 
 
 # Load test results (x86_64):
-# These results are from btrfs compression property enabled files vs btrfs uncompressed files.
-# The btrfs uncompressed files are the reference.
-# The btrfs compressed files suffer from:
-# - higher inode evictions produced by the kernel;
-# - slower performance due the btrfs directory logging on the 5.15 kernel not being particulary efficient in the presence of high inode eviction.
-#
+# opensuse leap 15.4 beta has an up-to-date downstream 5.14 kernel.
+# ubuntu jammy jellyfish  has an up-to-date downstream 5.15 kernel.
 # __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)
-# ubuntu jammy jellyfish -- kernel  5.15.0.23 (5.15.27) - (kvm) 
-# 1000 files gives aprox. (103204/1999) 51.6 x more inode evictions and aprox. (139000/7688) 18.1 x more time
-# 250  files gives aprox.   (31375/499) 62.9 x more inode evictions and aprox.  (17300/1138) 15.2 x more time
-# 100  files gives aprox.    (5050/199) 25.4 x more inode evictions and aprox.    (1600/430)  3.7 x more time
-# 50   files gives aprox.     (1275/99) 12.8 x more inode evictions and aprox.     (560/276)  2.0 x more time
-# 10   files gives aprox.       (55/19)  2.8 x more inode evictions and aprox.      (115/85)  1.3 x more time
+# opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)
+# ...updating   50 files on /mnt/inode-ev/zstd:         Job took    261 milliseconds @inode_evictions: 51
+# ...updating   50 files on /mnt/inode-ev/lzo:          Job took    256 milliseconds @inode_evictions: 51
+# ...updating   50 files on /mnt/inode-ev/uncompressed: Job took    317 milliseconds @inode_evictions: 51
+# ...updating  100 files on /mnt/inode-ev/zstd:         Job took    450 milliseconds @inode_evictions: 101
+# ...updating  100 files on /mnt/inode-ev/lzo:          Job took    461 milliseconds @inode_evictions: 101
+# ...updating  100 files on /mnt/inode-ev/uncompressed: Job took    471 milliseconds @inode_evictions: 101
+# ...updating  150 files on /mnt/inode-ev/zstd:         Job took    618 milliseconds @inode_evictions: 151
+# ...updating  150 files on /mnt/inode-ev/lzo:          Job took    624 milliseconds @inode_evictions: 151
+# ...updating  150 files on /mnt/inode-ev/uncompressed: Job took    612 milliseconds @inode_evictions: 151
+# ...updating  200 files on /mnt/inode-ev/zstd:         Job took    822 milliseconds @inode_evictions: 201
+# ...updating  200 files on /mnt/inode-ev/lzo:          Job took    933 milliseconds @inode_evictions: 201
+# ...updating  200 files on /mnt/inode-ev/uncompressed: Job took    747 milliseconds @inode_evictions: 201
+# ...updating  250 files on /mnt/inode-ev/zstd:         Job took   1128 milliseconds @inode_evictions: 251
+# ...updating  250 files on /mnt/inode-ev/lzo:          Job took    974 milliseconds @inode_evictions: 251
+# ...updating  250 files on /mnt/inode-ev/uncompressed: Job took    936 milliseconds @inode_evictions: 251
+# ...updating 1000 files on /mnt/inode-ev/zstd:         Job took   3517 milliseconds @inode_evictions: 1001
+# ...updating 1000 files on /mnt/inode-ev/lzo:          Job took   4373 milliseconds @inode_evictions: 1001
+# ...updating 1000 files on /mnt/inode-ev/uncompressed: Job took   3797 milliseconds @inode_evictions: 1001
+# ubuntu jammy jellyfish -- kernel 5.15.0.23 - (5.15.27) - (kvm) 
+# ...updating   50 files on /mnt/inode-ev/zstd:         Job took    424 milliseconds @inode_evictions: 1275
+# ...updating   50 files on /mnt/inode-ev/lzo:          Job took    423 milliseconds @inode_evictions: 1275
+# ...updating   50 files on /mnt/inode-ev/uncompressed: Job took    207 milliseconds @inode_evictions: 99
+# ...updating  100 files on /mnt/inode-ev/zstd:         Job took   1744 milliseconds @inode_evictions: 5050
+# ...updating  100 files on /mnt/inode-ev/lzo:          Job took   1838 milliseconds @inode_evictions: 5050
+# ...updating  100 files on /mnt/inode-ev/uncompressed: Job took    373 milliseconds @inode_evictions: 199
+# ...updating  150 files on /mnt/inode-ev/zstd:         Job took   4785 milliseconds @inode_evictions: 11325
+# ...updating  150 files on /mnt/inode-ev/lzo:          Job took   4660 milliseconds @inode_evictions: 11325
+# ...updating  150 files on /mnt/inode-ev/uncompressed: Job took    689 milliseconds @inode_evictions: 299
+# ...updating  200 files on /mnt/inode-ev/zstd:         Job took   9763 milliseconds @inode_evictions: 20100
+# ...updating  200 files on /mnt/inode-ev/lzo:          Job took  10106 milliseconds @inode_evictions: 20100
+# ...updating  200 files on /mnt/inode-ev/uncompressed: Job took    938 milliseconds @inode_evictions: 399
+# ...updating  250 files on /mnt/inode-ev/zstd:         Job took  17550 milliseconds @inode_evictions: 31375
+# ...updating  250 files on /mnt/inode-ev/lzo:          Job took  17337 milliseconds @inode_evictions: 31375
+# ...updating  250 files on /mnt/inode-ev/uncompressed: Job took   1373 milliseconds @inode_evictions: 499
+# ...updating 1000 files on /mnt/inode-ev/zstd:         Job took 143614 milliseconds @inode_evictions: 101132
+# ...updating 1000 files on /mnt/inode-ev/lzo:          Job took 146724 milliseconds @inode_evictions: 100314
+# ...updating 1000 files on /mnt/inode-ev/uncompressed: Job took   7735 milliseconds @inode_evictions: 1999
+
+
+# Load test results comparisson for compressed files (x86_64):
+# ubuntu jammy jellyfish - compared to - opensuse leap 15.4 beta
+# 50   files gives aprox.  1.6 x more time and aprox.  25 x more inode evictions 
+# 100  files gives aprox.  3.8 x more time and aprox.  50 x more inode evictions 
+# 150  files gives aprox.  7.4 x more time and aprox.  75 x more inode evictions 
+# 200  files gives aprox. 10.8 x more time and aprox. 100 x more inode evictions 
+# 250  files gives aprox. 15.5 x more time and aprox. 125 x more inode evictions 
+# 1000 files gives aprox. 33.5 x more time and aprox. 100 x more inode evictions 
+
+
+# Load test results comparisson for uncompressed files (x86_64):
+# ubuntu jammy jellyfish - compared to - opensuse leap 15.4 beta
+# 50   files gives aprox. 0.6 x more time and aprox. 2 x more inode evictions 
+# 100  files gives aprox. 0.8 x more time and aprox. 2 x more inode evictions 
+# 150  files gives aprox. 1.1 x more time and aprox. 2 x more inode evictions 
+# 200  files gives aprox. 1.2 x more time and aprox. 2 x more inode evictions 
+# 250  files gives aprox. 1.4 x more time and aprox. 2 x more inode evictions 
+# 1000 files gives aprox. 2.0 x more time and aprox. 2 x more inode evictions 
 
 
 # CPU usage results:
@@ -177,11 +245,9 @@
 
 
 # Test system specification:
-# host cpu: AMD FX-8370E
-# test storage medium: RAM disk block device
-# opensuse tumbleweed           - host: 8 cores, 8GB RAM, SSD
-# opensuse leap 15.4 beta (kvm) - host: 8 cores, 8GB RAM, SSD / guest: 2 cores, 2G RAM
-# ubuntu jammy jellyfish  (kvm) - host: 8 cores, 8GB RAM, SSD / guest: 2 cores, 2G RAM
+# host: AMD FX-8370E 8 cores / 8GB RAM / ssd
+# guests (kvm): 2 cores / 2G RAM / ssd
+# test storage medium: RAM disk block device (host and guest)
 
 
 # Dependencies: modprobe, blockdev, mv, btrfs, xfs_io, compsize, grep, wc, which, kernel modules: brd*, btrfs.
@@ -192,6 +258,13 @@
 
 
 # Changelog - document:
+# 20220327)
+#   overhauled test results presenting them in a more modular and meaningfull way.
+#   added main results description session.
+#   added load results for:
+#   -opensuse leap 15.4: k5.14.
+#   -ubuntu jammy jellyfish: k5.15.27.
+#   added new load results comparisson session.
 # 20220326)
 #   added test results for:
 #   -opensuse tumbleweed: k5.14.14 / k5.15.0-rc1 / k5.15.12 vanilla.
