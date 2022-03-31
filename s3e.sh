@@ -92,7 +92,7 @@
 # b_ the inode eviction generating btrfs inode logging and directory logging.
 # c_ the btrfs directory logging on the 5.15 kernel not being particulary efficient in the presence of high inode eviction.
 #
-# There is already an ongoing work [1] to improve "c" on newer kernels but I was told they are not elegible for the 5.15 version due to backporting policy restrictions.
+# There is already an ongoing work [1] to improve "c" on newer kernels but I was told they are not elegible for the 5.15 version due to backporting restrictions.
 # AFAIK there isn't any work for "a" yet.
 # The consequence is that btrfs users running the 5.15 kernel may experience severely degraded performance for specific I/O workloads on files with the compression property enabled.
 #
@@ -793,11 +793,12 @@ case "$1" in
         #dd_count=1             #the kernel regression wasn't found to be affected by fragmenting the writing of each testing file.
         #nfstatat=enable        #the kernel regression wasn't found to be affected by the newfstatat syscall.
         #ulnk=enable            #the kernel regression is affected by the unlink syscall as it is part of the inode-eviction syscall signature.
-        #NUM_FILES=1000         #1000 files gives aprox. (103204/1999) 51.6 x more inode evictions and aprox. (139000/7688) 18.1 x more time on test3
-        #NUM_FILES=250          #250  files gives aprox.   (31375/499) 62.9 x more inode evictions and aprox.  (17300/1138) 15.2 x more time on test3
-        #NUM_FILES=100          #100  files gives aprox.    (5050/199) 25.4 x more inode evictions and aprox.    (1600/430)  3.7 x more time on test3
-        #NUM_FILES=50           #50   files gives aprox.     (1275/99) 12.8 x more inode evictions and aprox.     (560/276)  2.0 x more time on test3
-        #NUM_FILES=10           #10   files gives aprox.       (55/19)  2.8 x more inode evictions and aprox.      (115/85)  1.3 x more time on test3
+        #NUM_FILES=50           #50   files gives aprox.  1.6 x more time and aprox.  25 x more inode evictions for compressed files on the 5.15 kernel
+        #NUM_FILES=100          #100  files gives aprox.  3.4 x more time and aprox.  50 x more inode evictions for compressed files on the 5.15 kernel
+        #NUM_FILES=150          #150  files gives aprox.  6.6 x more time and aprox.  75 x more inode evictions for compressed files on the 5.15 kernel
+        #NUM_FILES=200          #200  files gives aprox.  9.7 x more time and aprox. 100 x more inode evictions for compressed files on the 5.15 kernel
+        #NUM_FILES=250          #250  files gives aprox. 14.3 x more time and aprox. 125 x more inode evictions for compressed files on the 5.15 kernel
+        #NUM_FILES=1000         #1000 files gives aprox. 30.1 x more time and aprox. 100 x more inode evictions for compressed files on the 5.15 kernel
         #[ $populate2 = "enable" ] && populate_pre "6"  #activate populate (needs test)
         #[ $test2 = "enable" ] && test_pre "6"          #activate test (needs populate)
         ;;
