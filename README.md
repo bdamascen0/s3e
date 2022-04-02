@@ -53,7 +53,7 @@ write(3, "'\0\0\0", 4)                  = 4
 write(3, "\n!zypp.proto.target.PackageProgr"..., 39) = 39  
 close(13)  
 ```
-## The "inode-eviction" system call signature -  
+## The "inode-eviction" system call signature  
 After testing several different combinations, the minimum theorical syscall signature to trigger the regression would be:  
 ```
 rename("/usr/share/cups/model/gutenprint/5.2/C/stp-panasonic-dp-c265.5.2.ppd.gz", "/usr/share/cups/model/gutenprint/5.2/C/stp-panasonic-dp-c265.5.2.ppd.gz-RPMDELETE") = 0  
@@ -121,70 +121,10 @@ The vanilla kernel tests result show the exact same pattern verified on downstre
 [1] https://software.opensuse.org/package/kernel-vanilla?search_term=kernel-vanilla  
 [2] https://wiki.ubuntu.com/Kernel/MainlineBuilds   
 [3] https://lore.kernel.org/linux-fsdevel/07bb78be-1d58-7d88-288b-6516790f3b5d@leemhuis.info/  
-  
-### General test results for the 5.15 kernel series (x86_64)  
-```
-__T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
-opensuse tumbleweed ----- kernel 5.15.0-rc1-1.g8787773 - (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 13875 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 15351 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1231 ms @inode_evictions: 499  
-opensuse tumbleweed ----- kernel 5.15.12 --- vanilla --- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 13327 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 13361 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1204 ms @inode_evictions: 499  
-opensuse tumbleweed ----- kernel 5.15.12----------------------  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 12500 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 12327 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1482 ms @inode_evictions: 499  
-debian bookworm --------- kernel 5.15.0-3 - (5.15.15) -- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 12343 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 14028 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1092 ms @inode_evictions: 499  
-Zenwalk 15.0 Skywalker ---kernel 5.15.19 --------------- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 14374 ms @inode_evictions: -  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 14163 ms @inode_evictions: -  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  2173 ms @inode_evictions: -  
-ubuntu jammy jellyfish -- kernel 5.15.0.23 - (5.15.27) - (kvm)   
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 17521 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 17114 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1138 ms @inode_evictions: 499  
-ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)   
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 16191 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 16062 ms @inode_evictions: 31375  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1149 ms @inode_evictions: 499  
-```
-### General test results for other kernels (x86_64)  
-```
-__T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
-opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54----------  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took  668 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took  693 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  661 ms @inode_evictions: 252  
-opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took  811 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took  912 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  993 ms @inode_evictions: 251  
-opensuse tumbleweed ----- kernel 5.14.14 --------------- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took  888 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 1063 ms @inode_evictions: 251  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  778 ms @inode_evictions: 251  
-opensuse tumbleweed ----- kernel 5.16.14----------------------  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took 1398 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took 1323 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1365 ms @inode_evictions: 250  
-opensuse tumbleweed ----- kernel 5.16.15 --- vanilla --- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took  910 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took  740 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  717 ms @inode_evictions: 250  
-opensuse tumbleweed ----- kernel 5.17.1 ---- vanilla --- (kvm)  
-...updating 250 files on /mnt/inode-ev/zstd:         Job took  701 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/lzo:          Job took  695 ms @inode_evictions: 250  
-...updating 250 files on /mnt/inode-ev/uncompressed: Job took  954 ms @inode_evictions: 250  
-```  
+
 ### Load test results (x86_64):  
 opensuse leap 15.4 beta has an up-to-date downstream 5.14 kernel.  
-ubuntu jammy jellyfish  has up-to-date downstream and vanilla 5.15 kernels.  
+ubuntu jammy jellyfish  has up-to-date vanilla 5.15 kernel.  
 ```
 __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
 opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)  
@@ -263,6 +203,69 @@ ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)
    real   0m 7,256s  
    user   0m 1,325s  
    sys    0m 4,732s  
+```    
+### General test results
+All 5.15 kernels performed much worse than other kernels for compressed files.  
+
+#### General test results for the 5.15 kernel series (x86_64)  
+```
+__T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
+opensuse tumbleweed ----- kernel 5.15.0-rc1-1.g8787773 - (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 13875 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 15351 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1231 ms @inode_evictions: 499  
+opensuse tumbleweed ----- kernel 5.15.12 --- vanilla --- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 13327 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 13361 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1204 ms @inode_evictions: 499  
+opensuse tumbleweed ----- kernel 5.15.12----------------------  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 12500 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 12327 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1482 ms @inode_evictions: 499  
+debian bookworm --------- kernel 5.15.0-3 - (5.15.15) -- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 12343 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 14028 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1092 ms @inode_evictions: 499  
+Zenwalk 15.0 Skywalker ---kernel 5.15.19 --------------- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 14374 ms @inode_evictions: -  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 14163 ms @inode_evictions: -  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  2173 ms @inode_evictions: -  
+ubuntu jammy jellyfish -- kernel 5.15.0.23 - (5.15.27) - (kvm)   
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 17521 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 17114 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1138 ms @inode_evictions: 499  
+ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)   
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 16191 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 16062 ms @inode_evictions: 31375  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  1149 ms @inode_evictions: 499  
+```
+#### General test results for other kernels (x86_64)  
+```
+__T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
+opensuse leap 15.3 ------ kernel 5.3.18-150300.59.54----------  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took  668 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took  693 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  661 ms @inode_evictions: 252  
+opensuse leap 15.4 beta - kernel 5.14.21-150400.11 ----- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took  811 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took  912 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  993 ms @inode_evictions: 251  
+opensuse tumbleweed ----- kernel 5.14.14 --------------- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took  888 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 1063 ms @inode_evictions: 251  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  778 ms @inode_evictions: 251  
+opensuse tumbleweed ----- kernel 5.16.14----------------------  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took 1398 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took 1323 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took 1365 ms @inode_evictions: 250  
+opensuse tumbleweed ----- kernel 5.16.15 --- vanilla --- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took  910 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took  740 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  717 ms @inode_evictions: 250  
+opensuse tumbleweed ----- kernel 5.17.1 ---- vanilla --- (kvm)  
+...updating 250 files on /mnt/inode-ev/zstd:         Job took  701 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/lzo:          Job took  695 ms @inode_evictions: 250  
+...updating 250 files on /mnt/inode-ev/uncompressed: Job took  954 ms @inode_evictions: 250  
 ```  
 ## Test system specification:  
 host: AMD FX-8370E 8 cores / 8GB RAM / ssd  
@@ -279,7 +282,7 @@ kmod (modprobe), util-linux (blockdev, rename), coreutils (mv, wc), xfsprogs (xf
 - Specific ubuntu package names:  
 btrfs-progs, btrfs-compsize, debianutils (which).  
 
-(*) kernels compiled with ramdisk option (like zenwalk) will need additional customization.  
+(\*) kernels compiled with ramdisk option (like zenwalk) will need additional customization.  
   
 ## Changes  
 
