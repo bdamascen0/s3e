@@ -248,6 +248,7 @@ ubuntu jammy jellyfish vanilla - compared to - opensuse leap 15.4 beta
 ```  
 ### CPU usage results:  
 The regression causes significant CPU usage by the kernel.  
+```
 __T E S T - 3 - populate + test. test renameat2/openat + unlink syscalls w/ empty files (3x)  
 ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)   
 ...updating 1000 files on /mnt/inode-ev/zstd:         Job took 132691 ms  
@@ -262,7 +263,7 @@ ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)
    real   0m 7,256s  
    user   0m 1,325s  
    sys    0m 4,732s  
-  
+```  
 ## Test system specification:  
 host: AMD FX-8370E 8 cores / 8GB RAM / ssd  
 guests (kvm): 2 cores / 2G RAM / ssd  
