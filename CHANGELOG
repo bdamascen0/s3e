@@ -1,0 +1,72 @@
+Simple Syscall Signature Emulator
+
+Changelog:
+
+v4.7 20220324
+  fix for distros missing /usr/sbin in %PATH (again).
+  cosmetic changes in the test descriptions.
+v4.6 20220320
+  first public version.
+  code refactor:
+  -added basic integration for the time program (system resources usage).
+  -added time 2nd level external parameter.
+  -changed test_pre function.
+  -added basic file check for the time program
+v4.5 20220319 (internal)
+  code refactor:
+  -added basic integration for the bpftrace program.
+  -added bpftrace 2nd level external parameter.
+  -changed test_pre and run_test functions.
+  -added basic file check for rename and bpftrace programs.
+v4.4 20220317 (internal)
+  code refactor:
+  -added system call control to make a unique syscall signature for each 3x test pack.
+  -simplified probe reporting logic.
+  -hardened fsetup logic.
+  -added initial rename test for reference.
+  -changed tests (syscall signature).
+  -added unified test description.
+  -moved populate out from test_pre function (populate_pre).
+  -added 2nd level external parameters: populate-only and test-only.
+  -turned off dynamic test progress indication with test-only parameter to decrease the strace log size.
+  -added qsetup external parameter.
+  -added qsetup and pre_populate functions.
+  fix pre_populate conditional.
+  added rename syscall.
+  added back xfs_io since it is used on the reference test.
+  fix var declaration: compress3 missing, compress1 declared twice.
+  update and cleanup of comments, usage and test descriptions.
+  tooling: external batch test script to get strace logs for all tests.
+v4.3 20220221 (internal)
+  changed tests (file sizes).
+v4.2 20220216 (internal)
+  fix for distros missing /usr/sbin in %PATH.
+  removed xfs_io to simplify dependency.
+v4.1 20220212 (internal)
+  fix compression probe logic for reset.
+  fix reset by adding multiple probe calls.
+v4.0 20220212 (internal)
+  code refactor:
+  -added test_pre function to simplify test configuration.
+  changed tests (file sizes and entropy level).
+  fix sync logic to run before each single test from a 3x test pack.
+v3.0 20220212 (internal)
+  code refactor:
+  -added safety checks.
+  -added usage instructions.
+  -added external parameters for running one action for each run.
+  -added support for multiple 3x test pack.
+  -added functions probe, populate, run_test, fsetup and usage.
+  -added dynamic test progress indication.
+  tooling: external probe script to help with active debbuging.
+v2.0 20220201 (internal)
+  first version capable of triggering the regression.
+  code refactor:
+  -added function for setup/populate.
+  -added capability to populate with non empty files.
+  -increased test pack to 3x: zstd, lzo, none (three folders).
+  added unlink and openat syscalls.
+v1.0 20220129 (internal)
+  first functional version.
+  run-once script with integrated setup, reset, populate and 2x test pack: zstd, none (one folder).
+  added first syscalls (newfstatat and renameat2). 
