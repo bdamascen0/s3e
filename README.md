@@ -11,7 +11,7 @@ This program is a simple system call signature emulator script for the linux ker
 * safety checks.  
   
 ## About this work  
-This work is about a severely degraded performance found during rpm operations with specific packages on openSUSE Tumbleweed.
+This work is about a severely degraded I/O performance observed during rpm operations with specific packages on openSUSE Tumbleweed.
 
 More specifically, the issue happens with the 5.15 LTS kernel on a btrfs partition with btrfs compression property enabled at the target folder.
 
