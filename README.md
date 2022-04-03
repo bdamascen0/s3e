@@ -65,7 +65,7 @@ The file existence check and the file content writing didn't demonstrated any fi
 For simplification, the fcntl and close syscalls were considered consequences of openat for empty and non empty files.  
 The umask changes weren't tested.  
 
-Please note that this program can not provide a clean syscall sequence as the shell interpreter and the external programs executed by the script will generate their own system calls too.
+Please note that this program cannot provide a clean syscall sequence as the shell interpreter and the external programs executed by the script will generate their own system calls too.
 
 Another remark goes to the rename operation.
 While the rename program from util-linux generates a rename syscall, the mv program from coreutils generates a renameat2 syscall.
@@ -79,24 +79,23 @@ The bare minimum elements to trigger the regression are:
 
 Verify the dependencies and run the s3e.sh program on any 5.15 kernel.  
 
-* Tests 1 and 2  
+Tests 1 and 2:  
 These tests do not produce the minimum syscall signature.  
 They should be fast on all folders (uncompressed, zstd and lzo folders).  
-* Tests 3, 4 and 5  
-These tests do produce the minimum syscall signature.  
+
+Tests 3, 4 and 5:  
+These tests produce the minimum syscall signature.  
 They should be fast on the uncompressed folder.  
 They should be a lot slower on the zstd and lzo folders.  
-
 Test 3 is considered the most significant as it produces the minimum syscall signature and uses the widely available mv program.  
 
 The slow results on tests 3, 4 and 5 are due:  
-a) the kernel regression: specific system calls touching files with btrfs compression property will generate higher inode eviction on 5.15 kernels.  
-b) the inode eviction generating btrfs inode logging and directory logging.  
-c) the btrfs directory logging on the 5.15 kernel not being particulary efficient in the presence of high inode eviction.  
+\_a_ the kernel regression: specific system calls touching files with btrfs compression property will generate higher inode eviction on 5.15 kernels.  
+\_b_ the inode eviction generating btrfs inode logging and directory logging.  
+\_c_ the btrfs directory logging on the 5.15 kernel not being particulary efficient in the presence of high inode eviction.  
 
-About "a": AFAIK there isn't any work for "a" yet and the regression remains unfixed.  
-
-About "c": There is already an ongoing work [1] to improve "c" on newer kernels but I was told they are not elegible for the 5.15 version due to backporting restrictions.  
+As far as I know there isn't any work for "a" yet and the regression remains unfixed.  
+There is already an ongoing work [1] to improve "c" on newer kernels but I was told they are not elegible for the 5.15 version due to backporting restrictions.  
 
 The consequence is that btrfs users running the 5.15 kernel may experience severely degraded performance for specific I/O workloads on files with the compression property enabled.  
 
