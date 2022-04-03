@@ -69,7 +69,7 @@ Please note that this program can not provide a clean syscall sequence as the sh
 
 Another remark goes to the rename operation.
 While the rename program from util-linux generates a rename syscall, the mv program from coreutils generates a renameat2 syscall.
-Both were verified to trigger the regression and the major factor here is that the util-linux rename isn't easily availble on some distributions like Ubuntu.  
+Both were verified to trigger the regression and the major factor here is that the util-linux rename isn't easily availble on some distributions like Ubuntu and Debian.  
   
 ## Triggering the regression  
 The bare minimum elements to trigger the regression are:  
@@ -108,19 +108,19 @@ The regression could be reproduced reliably on:
 * several different 5.15 kernels versions across several different distros.  
 * all 5.15 kernels that I have tried on.  
 * the 5.15.0-rc1 kernel from the opensuse tumbleweed comunity repository.  
-* the 5.15.12 vanilla kernel from the official opensuse tumbleweed repository [1].  
-* the 5.15.32 vanilla kernel from the official ubuntu repository [2].  
+* the 5.15.12 vanilla kernel from the official opensuse tumbleweed repository [4].  
+* the 5.15.32 vanilla kernel from the official ubuntu repository [5].  
 
 The regression could not be reproduced on:  
 * kernel versions other than the 5.15.  
-* the 5.17.1 and 5.16.15 vanilla kernels from the official opensuse tumbleweed repository [1].  
+* the 5.17.1 and 5.16.15 vanilla kernels from the official opensuse tumbleweed repository [4].  
 
-The vanilla kernel tests were suggested by Thorsten Leemhuis [3] to make sure downstream custom patches aren't causing the symptoms.  
+The vanilla kernel tests were suggested by Thorsten Leemhuis [6] to make sure downstream custom patches aren't causing the symptoms.  
 The vanilla kernel tests result show the exact same pattern verified on downstream kernels and fully validates the regression.  
 
-[1] https://software.opensuse.org/package/kernel-vanilla?search_term=kernel-vanilla  
-[2] https://wiki.ubuntu.com/Kernel/MainlineBuilds   
-[3] https://lore.kernel.org/linux-fsdevel/07bb78be-1d58-7d88-288b-6516790f3b5d@leemhuis.info/  
+[4] https://software.opensuse.org/package/kernel-vanilla?search_term=kernel-vanilla  
+[5] https://wiki.ubuntu.com/Kernel/MainlineBuilds   
+[6] https://lore.kernel.org/linux-fsdevel/07bb78be-1d58-7d88-288b-6516790f3b5d@leemhuis.info/  
 
 ### Load test results (x86_64):  
 opensuse leap 15.4 beta has an up-to-date downstream 5.14 kernel.  
