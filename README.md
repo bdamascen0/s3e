@@ -170,21 +170,21 @@ ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)
 ubuntu jammy jellyfish 5.15.32 vanilla (compared to: 5.14.21 vanilla)  
 ```
 50   files gives aprox.  1.8 x more time and aprox.  25 x more inode evictions   
-100  files gives aprox.  3.9 x more time and aprox.  50 x more inode evictions   
-150  files gives aprox.  8.4 x more time and aprox.  75 x more inode evictions   
-200  files gives aprox. 12.1 x more time and aprox. 100 x more inode evictions   
-250  files gives aprox. 22.8 x more time and aprox. 125 x more inode evictions   
-1000 files gives aprox. 41.6 x more time and aprox. 100 x more inode evictions   
+100  files gives aprox.  3.3 x more time and aprox.  50 x more inode evictions   
+150  files gives aprox.  7.4 x more time and aprox.  75 x more inode evictions   
+200  files gives aprox. 11.4 x more time and aprox. 100 x more inode evictions   
+250  files gives aprox. 21.1 x more time and aprox. 125 x more inode evictions   
+1000 files gives aprox. 38.4 x more time and aprox. 100 x more inode evictions   
 ```  
 ### Load test results comparisson for uncompressed files (x86_64):  
 ubuntu jammy jellyfish 5.15.32 vanilla (compared to: 5.14.21 vanilla)  
 ```
-50   files gives aprox. 0.9 x more time and aprox. 2 x more inode evictions   
-100  files gives aprox. 0.9 x more time and aprox. 2 x more inode evictions   
+50   files gives aprox. 1.2 x more time and aprox. 2 x more inode evictions   
+100  files gives aprox. 0.8 x more time and aprox. 2 x more inode evictions   
 150  files gives aprox. 1.2 x more time and aprox. 2 x more inode evictions   
-200  files gives aprox. 1.3 x more time and aprox. 2 x more inode evictions   
-250  files gives aprox. 1.6 x more time and aprox. 2 x more inode evictions   
-1000 files gives aprox. 2.4 x more time and aprox. 2 x more inode evictions   
+200  files gives aprox. 1.0 x more time and aprox. 2 x more inode evictions   
+250  files gives aprox. 1.3 x more time and aprox. 2 x more inode evictions   
+1000 files gives aprox. 2.3 x more time and aprox. 2 x more inode evictions   
 ```  
 ### CPU usage results:  
 The regression causes significant CPU usage by the kernel.  
