@@ -8,7 +8,7 @@ Analyzing the rpm's strace report and making some experiments I could replace th
 This test case is designed to trigger the following regression on the 5.15 kernel:
 * repeated renameat2, unlink and openat system calls reach files with btrfs compression property enable.
 * the combination of these system calls and the btrfs compression property triggers the high inode eviction.
-* the high inode eviction causes to much work for the btrfs directory logging.
+* the high inode eviction causes too much work for the btrfs directory logging.
 * the overloaded btrfs directory logging causes the slower I/O performance.
 
 A simplified script is supplied.
