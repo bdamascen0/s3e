@@ -189,7 +189,7 @@ run_test() {
     sync
     xfs_io -c "fsync" $DIR
     echo -e "\n...updating $NUM_FILES files on $DIR:"
-    #dumb pause so bpftrace has time to atach its probe
+    #dumb pause so bpftrace has time to attach its probe
     [ $bpf = enable ] && sleep 3s
     start=$(date +%s%N)
     
