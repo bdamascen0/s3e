@@ -123,7 +123,7 @@ ubuntu jammy jellyfish -- kernel 5.15.32 --- vanilla --- (kvm)
 
 Just for the record, the 5.16 kernel never reproduced the regression.
 The real life workload to trigger the regression, the rpm package updates, were verified to work fine since 5.16~rc6 [1].
-It was expected that the synthetic workload from the script also produced normal results on the 5.16 e 5.17 kernels.
+It was expected that the synthetic workload from the script also produced normal results on the 5.16 and 5.17 kernels.
 
 [1] https://bugzilla.opensuse.org/show_bug.cgi?id=1193549
 
